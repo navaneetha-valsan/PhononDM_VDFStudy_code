@@ -1,0 +1,714 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 14.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     27496,        706]
+NotebookOptionsPosition[     25679,        670]
+NotebookOutlinePosition[     26079,        686]
+CellTagsIndexPosition[     26036,        683]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["\<\
+Reader note: This notebook derives the rms speed for a truncated \
+Maxwell-Boltzmann distribution and uses that rms target to solve for the \
+rms-matched Tsallis and empirical parameters, v0_TSA and v0_EMP.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.9943387077584753`*^9, 3.9943387297815104`*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"291c9f03-c5d7-48e9-8d27-9d42800b2db6"],
+
+Cell["\<\
+Workflow: compute vrms(MB), build the Tsallis and empirical rms formulas, \
+then use FindRoot to choose v0_TSA and v0_EMP so their rms values match the \
+Maxwell-Boltzmann target. 
+Use rms_matching_emp_check.nb to flag empirical cases with no finite v0_EMP \
+solution.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{3.9943381277227488`*^9},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"d136c003-f70c-4c4c-85a2-b98515304e60"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Maxwell", " ", "Boltzmann", " ", "Distribution", " ", "truncated", " ", 
+     "at", " ", "v"}], "=", "vesc"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"kMB", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "2"], "*", 
+        RowBox[{"Exp", "[", 
+         RowBox[{
+          RowBox[{"-", 
+           SuperscriptBox["v", "2"]}], "/", 
+          SuperscriptBox["v0", "2"]}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{"v0", ">", "0"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"valMB", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "4"], "*", 
+        RowBox[{"Exp", "[", 
+         RowBox[{
+          RowBox[{"-", 
+           SuperscriptBox["v", "2"]}], "/", 
+          SuperscriptBox["v0", "2"]}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{"v0", ">", "0"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"vrmsMB", "=", 
+     RowBox[{"FullSimplify", "[", 
+      RowBox[{"vrms", " ", "=", " ", 
+       RowBox[{"Sqrt", "[", 
+        RowBox[{"valMB", "/", "kMB"}], "]"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Conservative", " ", "range", " ", "for", " ", "velocity", " ", 
+     "parameters"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"data", "=", 
+     RowBox[{
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"vescval", ",", "v0val", ",", 
+          RowBox[{"N", "[", 
+           RowBox[{"vrmsMB", "/.", " ", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"vesc", "->", "vescval"}], ",", 
+              RowBox[{"v0", "->", "v0val"}]}], "}"}]}], "]"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"vescval", ",", 
+          RowBox[{"{", 
+           RowBox[{"544", ",", "450", ",", "600"}], "}"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"v0val", ",", 
+          RowBox[{"{", 
+           RowBox[{"220", ",", "200", ",", "280"}], "}"}]}], "}"}]}], "]"}], "//", 
+      RowBox[{
+       RowBox[{"Flatten", "[", 
+        RowBox[{"#", ",", "1"}], "]"}], "&"}]}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Aggressive", " ", "range", " ", "for", " ", "velocity", " ", 
+     "parameters"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"data", "=", 
+      RowBox[{
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"vescval", ",", "v0val", ",", 
+           RowBox[{"N", "[", 
+            RowBox[{"vrmsMB", "/.", " ", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"vesc", "->", "vescval"}], ",", 
+               RowBox[{"v0", "->", "v0val"}]}], "}"}]}], "]"}]}], "}"}], ",", 
+         
+         RowBox[{"{", 
+          RowBox[{"vescval", ",", 
+           RowBox[{"{", 
+            RowBox[{"528", ",", "503", ",", "552"}], "}"}]}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"v0val", ",", 
+           RowBox[{"{", 
+            RowBox[{"238", ",", "236.5", ",", "239.5"}], "}"}]}], "}"}]}], 
+        "]"}], "//", 
+       RowBox[{
+        RowBox[{"Flatten", "[", 
+         RowBox[{"#", ",", "1"}], "]"}], "&"}]}]}], ";"}], "*)"}], " ", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{"triplets", ":", 
+     RowBox[{"{", 
+      RowBox[{"v_rms", ",", "v_esc", ",", "v0"}], "}"}]}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"triples", "=", 
+     RowBox[{"data", "[", 
+      RowBox[{"[", 
+       RowBox[{"All", ",", 
+        RowBox[{"{", 
+         RowBox[{"3", ",", "1", ",", "2"}], "}"}]}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"Grid", "[", 
+    RowBox[{
+     RowBox[{"Prepend", "[", 
+      RowBox[{"data", ",", 
+       RowBox[{"{", 
+        RowBox[{"\"\<v_esc\>\"", ",", "\"\<v_0\>\"", ",", "\"\<vrms\>\""}], 
+        "}"}]}], "]"}], ",", 
+     RowBox[{"Frame", "->", "All"}], ",", 
+     RowBox[{"Alignment", "->", "Center"}]}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.968843405293565*^9, 3.968843496475761*^9}, {
+   3.968843665823382*^9, 3.96884366939392*^9}, {3.968843716326255*^9, 
+   3.9688437356719847`*^9}, {3.968850793100791*^9, 3.968850802868058*^9}, {
+   3.968864215349628*^9, 3.968864231085552*^9}, {3.968864389841336*^9, 
+   3.968864400829237*^9}, {3.968864588360602*^9, 3.968864595521482*^9}, {
+   3.9688652044199953`*^9, 3.968865216431632*^9}, 3.968865619052636*^9, 
+   3.968868006031762*^9, 3.968868101558982*^9, 3.968868132841525*^9, {
+   3.986112925328138*^9, 3.986112967566597*^9}, {3.994338572206203*^9, 
+   3.9943386082230377`*^9}, {3.994339207275323*^9, 3.994339337564907*^9}},
+ CellLabel->"In[36]:=",ExpressionUUID->"57bb9a75-9ae1-4c95-860b-0ffd2347c7b7"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"v_esc\"\>", "\<\"v_0\"\>", "\<\"vrms\"\>"},
+    {"544", "220", "266.0117949883278`"},
+    {"544", "200", "243.80895397345427`"},
+    {"544", "280", "319.10240104071903`"},
+    {"450", "220", "255.32042010719314`"},
+    {"450", "200", "238.09180303832616`"},
+    {"450", "280", "290.80530503873354`"},
+    {"600", "220", "268.22904153746845`"},
+    {"600", "200", "244.6416573773759`"},
+    {"600", "280", "329.4453445162099`"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Center}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{
+  3.974918499886112*^9, 3.974935151397296*^9, 3.982522729939884*^9, 
+   3.9861129938484893`*^9, {3.9943387117640667`*^9, 3.994338732798214*^9}, 
+   3.99433935162714*^9},
+ CellLabel->"Out[41]=",ExpressionUUID->"5ec5aaad-c0bb-4291-9e3a-611de81109ff"]
+}, Open  ]],
+
+Cell["\<\
+Tsallis block: this derives the normalized Tsallis rms expression after \
+substituting q = 1\[Dash]v0^2/vesc^2, then evaluates it on the same vesc and \
+v0 grid used for the Maxwell-Boltzmann target.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.99433866236043*^9, 3.994338668745549*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"b7963e7f-e3ad-4ad8-b6bc-d0fa6b6969b6"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Tsallis", " ", "distribution"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"1", "-", "q"}], ")"}], " ", "=", " ", "qp"}], ",", " ", 
+    RowBox[{"vesc", " ", "=", " ", 
+     RowBox[{"v0", "/", 
+      RowBox[{"sqrt", "[", "qp", "]"}]}]}]}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"ktsa", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "2"], "*", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"1", "-", 
+           RowBox[{"(", 
+            RowBox[{"qp", "*", 
+             RowBox[{
+              SuperscriptBox["v", "2"], "/", 
+              SuperscriptBox["v0", "2"]}]}], ")"}]}], ")"}], 
+         RowBox[{"1", "/", "qp"}]]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", 
+         RowBox[{"v0", "/", 
+          SuperscriptBox[
+           RowBox[{"(", "qp", ")"}], 
+           RowBox[{"1", "/", "2"}]]}]}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"v0", ">", "0"}], ",", 
+          RowBox[{"qp", ">", "0"}]}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"valtsa", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "4"], "*", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"1", "-", 
+           RowBox[{"(", 
+            RowBox[{"qp", "*", 
+             RowBox[{
+              SuperscriptBox["v", "2"], "/", 
+              SuperscriptBox["v0", "2"]}]}], ")"}]}], ")"}], 
+         RowBox[{"1", "/", "qp"}]]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", 
+         RowBox[{"v0", "/", 
+          SuperscriptBox[
+           RowBox[{"(", "qp", ")"}], 
+           RowBox[{"1", "/", "2"}]]}]}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"qp", ">", "0"}], ",", 
+          RowBox[{"v0", ">", "0"}]}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"vrmstsa", "=", 
+     RowBox[{"FullSimplify", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Sqrt", "[", 
+         RowBox[{"valtsa", "/", "ktsa"}], "]"}], " ", "/.", " ", 
+        RowBox[{"qp", "->", 
+         RowBox[{
+          RowBox[{"v0", "^", "2"}], "/", 
+          RowBox[{"vesc", "^", "2"}]}]}]}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"v0", ">", "0"}], ",", 
+          RowBox[{"vesc", ">", "0"}]}], "}"}]}]}], "]"}]}], ";"}], "\n", 
+   RowBox[{"Grid", "[", 
+    RowBox[{
+     RowBox[{"Prepend", "[", 
+      RowBox[{
+       RowBox[{"Flatten", "[", 
+        RowBox[{
+         RowBox[{"Table", "[", 
+          RowBox[{
+           RowBox[{"With", "[", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{"qpsub", "=", 
+               RowBox[{
+                RowBox[{"(", 
+                 RowBox[{"v0val", "/", "vescval"}], ")"}], "^", "2"}]}], 
+              "}"}], ",", 
+             RowBox[{"{", 
+              RowBox[{"vescval", ",", "v0val", ",", 
+               RowBox[{"N", "[", 
+                RowBox[{"vrmstsa", "/.", " ", 
+                 RowBox[{"{", 
+                  RowBox[{
+                   RowBox[{"qp", "->", "qpsub"}], ",", 
+                   RowBox[{"vesc", "->", "vescval"}], ",", 
+                   RowBox[{"v0", "->", "v0val"}]}], "}"}]}], "]"}]}], "}"}]}],
+             "]"}], ",", "\[IndentingNewLine]", 
+           RowBox[{"{", 
+            RowBox[{"vescval", ",", 
+             RowBox[{"{", 
+              RowBox[{"544", ",", "450", ",", "600"}], "}"}]}], "}"}], ",", 
+           RowBox[{"{", 
+            RowBox[{"v0val", ",", 
+             RowBox[{"{", 
+              RowBox[{"220", ",", "200", ",", "280"}], "}"}]}], "}"}]}], 
+          "]"}], ",", "1"}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\"\<v_esc\>\"", ",", "\"\<v_0\>\"", ",", "\"\<vrms\>\""}], 
+        "}"}]}], "]"}], ",", 
+     RowBox[{"Frame", "->", "All"}], ",", 
+     RowBox[{"Alignment", "->", "Center"}]}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.968843777392271*^9, 3.968843827374*^9}, {
+   3.968843859017148*^9, 3.96884391961795*^9}, {3.968848089395945*^9, 
+   3.968848098948496*^9}, {3.968848273052485*^9, 3.968848283921825*^9}, {
+   3.968849041779868*^9, 3.968849081230318*^9}, {3.968849171708321*^9, 
+   3.9688491917201*^9}, {3.968863627516128*^9, 3.968863630400393*^9}, {
+   3.968865320516912*^9, 3.968865345491893*^9}, 3.968865629477498*^9, 
+   3.968868020691082*^9, 3.968868108707932*^9, 3.968868141533361*^9, {
+   3.994338788248166*^9, 3.994338830850971*^9}},
+ CellLabel->"In[42]:=",ExpressionUUID->"14de9b82-11b6-4b6b-aeca-ac0d5caa88ca"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"v_esc\"\>", "\<\"v_0\"\>", "\<\"vrms\"\>"},
+    {"544", "220", "227.00347854946534`"},
+    {"544", "200", "211.7688261358246`"},
+    {"544", "280", "265.97955667503777`"},
+    {"450", "220", "213.17863724017846`"},
+    {"450", "200", "200.41279713680544`"},
+    {"450", "280", "244.45673771098254`"},
+    {"600", "220", "233.10254897104483`"},
+    {"600", "200", "216.69453555438454`"},
+    {"600", "280", "275.94181432339377`"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Center}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{3.974918501996539*^9, 3.974935153172994*^9, 
+  3.98252273164688*^9, 3.986112995620385*^9, 3.9943387412648573`*^9, 
+  3.994338791391815*^9, 3.994338854575502*^9, 3.994339353150999*^9},
+ CellLabel->"Out[45]=",ExpressionUUID->"cee49b3d-21b4-4596-83ad-fb15e64f716a"]
+}, Open  ]],
+
+Cell["\<\
+Empirical block: this derives the normalized rms expression for Empirical \
+distribution (Mao et.al. 2013) with p fixed to 1.5. Then evaluates it on the \
+same vesc and v0 grid used for the Maxwell-Boltzmann target.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.994338894738707*^9, 3.994338989880815*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"576921dd-9962-4c88-a402-bb1dfd427901"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Empirical", " ", "distribution"}], "*)"}], "\[IndentingNewLine]", 
+  
+  RowBox[{
+   RowBox[{
+    RowBox[{"p", "=", "1.5"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"kemp", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "2"], "*", 
+        RowBox[{"Exp", "[", 
+         RowBox[{
+          RowBox[{"-", "v"}], "/", "v0"}], "]"}], "*", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           SuperscriptBox["vesc", "2"], "-", 
+           SuperscriptBox["v", "2"]}], ")"}], "p"]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{"v0", ">", "0"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"valemp", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "4"], "*", 
+        RowBox[{"Exp", "[", 
+         RowBox[{
+          RowBox[{"-", "v"}], "/", "v0"}], "]"}], "*", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           SuperscriptBox["vesc", "2"], "-", 
+           SuperscriptBox["v", "2"]}], ")"}], "p"]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{"v0", ">", "0"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"vrmsemp", "=", 
+     RowBox[{"FullSimplify", "[", 
+      RowBox[{"Sqrt", "[", 
+       RowBox[{"valemp", "/", "kemp"}], "]"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"Grid", "[", 
+    RowBox[{
+     RowBox[{"Prepend", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"vescval", ",", "v0val", ",", 
+            RowBox[{"N", "[", 
+             RowBox[{"vrmsemp", "/.", " ", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"vesc", "->", "vescval"}], ",", 
+                RowBox[{"v0", "->", "v0val"}]}], "}"}]}], "]"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"vescval", ",", 
+            RowBox[{"{", 
+             RowBox[{"544", ",", "450", ",", "600"}], "}"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"v0val", ",", 
+            RowBox[{"{", 
+             RowBox[{"220", ",", "200", ",", "280"}], "}"}]}], "}"}]}], "]"}],
+         "//", 
+        RowBox[{
+         RowBox[{"Flatten", "[", 
+          RowBox[{"#", ",", "1"}], "]"}], "&"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"\"\<v_esc\>\"", ",", "\"\<v_0\>\"", ",", "\"\<vrms\>\""}], 
+        "}"}]}], "\n", "]"}], ",", 
+     RowBox[{"Frame", "->", "All"}], ",", 
+     RowBox[{"Alignment", "->", "Center"}]}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.968866174021675*^9, 3.96886619533605*^9}, {
+   3.968867598080286*^9, 3.968867600013833*^9}, 3.968868028286962*^9, 
+   3.968868120106973*^9, 3.968868151365719*^9, {3.970830559781701*^9, 
+   3.9708305611827*^9}, {3.97083062192659*^9, 3.970830622415722*^9}, {
+   3.970835247043646*^9, 3.970835247891064*^9}, 3.9708353276453457`*^9, {
+   3.970837644163715*^9, 3.970837645013794*^9}, {3.994339004511457*^9, 
+   3.994339010736087*^9}, {3.9943390505360107`*^9, 3.994339055675181*^9}},
+ CellLabel->"In[46]:=",ExpressionUUID->"b40dd582-ecd5-40fb-b7da-714715065f64"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"v_esc\"\>", "\<\"v_0\"\>", "\<\"vrms\"\>"},
+    {"544", "220", "286.4504993105439`"},
+    {"544", "200", "281.6569355378715`"},
+    {"544", "280", "296.7041679489255`"},
+    {"450", "220", "243.79657564222853`"},
+    {"450", "200", "240.52338033672223`"},
+    {"450", "280", "250.77842935389944`"},
+    {"600", "220", "310.4955628884111`"},
+    {"600", "200", "304.67015022608103`"},
+    {"600", "280", "322.98500351616946`"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Center}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{3.974918509613361*^9, 3.974935159900476*^9, 
+  3.9825227390291357`*^9, 3.986113002972845*^9, 3.994339067628684*^9, 
+  3.994339359661418*^9},
+ CellLabel->"Out[50]=",ExpressionUUID->"91bf5e0c-add5-4cd1-b04a-f955288eb736"]
+}, Open  ]],
+
+Cell["\<\
+Matching block: these FindRoot calls solve for the v0 values that make the \
+Tsallis and empirical rms values equal to the Maxwell-Boltzmann rms target. 
+A large empirical root or failed convergence should be cross-checked against \
+rms_matching_emp_check.nb.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{3.99433908909546*^9},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"f37540ab-848d-44b9-9923-61366047b5b6"],
+
+Cell[BoxData[
+ RowBox[{"(*", 
+  RowBox[{
+   RowBox[{
+   "To", " ", "find", " ", "v0tsa", " ", "and", " ", "v0emp", " ", "by", " ", 
+    "setting", " ", "vrmstsa"}], ",", 
+   RowBox[{
+   "vrmsemp", " ", "to", " ", "be", " ", "equal", " ", "to", " ", 
+    "vrmsMB"}]}], "*)"}]], "Input",
+ CellChangeTimes->{{3.968848730550168*^9, 3.968848782825269*^9}, 
+   3.994339132376493*^9},
+ CellLabel->"In[51]:=",ExpressionUUID->"9db1e271-e2ea-4933-a768-0f060d82c6a7"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"Prepend", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Module", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"A", "=", 
+            RowBox[{"triple", "[", 
+             RowBox[{"[", "1", "]"}], "]"}]}], ",", 
+           RowBox[{"vescVal", "=", 
+            RowBox[{"triple", "[", 
+             RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+           RowBox[{"v0Val", "=", 
+            RowBox[{"triple", "[", 
+             RowBox[{"[", "3", "]"}], "]"}]}], ",", "v0TSA", ",", "v0EMP"}], 
+          "}"}], ",", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"v0TSA", "=", 
+           RowBox[{"v0", "/.", " ", 
+            RowBox[{"FindRoot", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"vrmstsa", "/.", " ", 
+                 RowBox[{"vesc", "->", "vescVal"}]}], ")"}], "==", "A"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"v0", ",", "250"}], "}"}]}], "]"}]}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"v0EMP", "=", 
+           RowBox[{"v0", "/.", " ", 
+            RowBox[{"FindRoot", "[", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{"vrmsemp", "/.", " ", 
+                 RowBox[{"vesc", "->", "vescVal"}]}], ")"}], "==", "A"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"v0", ",", "450"}], "}"}], ",", 
+              RowBox[{"AccuracyGoal", "->", "5"}]}], "]"}]}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{"v0Val", ",", "vescVal", ",", "A", ",", 
+            RowBox[{"N", "[", "v0TSA", "]"}], ",", 
+            RowBox[{"N", "[", "v0EMP", "]"}]}], "}"}]}]}], "]"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"{", 
+        RowBox[{"triple", ",", "triples"}], "}"}]}], "  ", 
+      RowBox[{"(*", 
+       RowBox[{"triples", " ", "must", " ", "be", " ", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"A", "=", "v_rms"}], ",", "v_esc", ",", "v0"}], "}"}], " ", 
+        "rows"}], "*)"}], "]"}], ",", "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<v0\>\"", ",", "\"\<v_esc\>\"", ",", "\"\<v_rms(MB)\>\"", ",", 
+       "\"\<v0_tsa\>\"", ",", "\"\<v0_emp\>\""}], "}"}]}], "   ", 
+    RowBox[{"(*", 
+     RowBox[{"header", " ", "row", " ", "as", " ", "a", " ", "list"}], "*)"}],
+     "]"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"Frame", "->", "All"}], ",", 
+   RowBox[{"Alignment", "->", "Center"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.968850092616471*^9, 3.968850092618407*^9}, 
+   3.968850840081934*^9, {3.968862569190095*^9, 3.968862584572661*^9}, {
+   3.96886265455212*^9, 3.968862657223597*^9}, {3.968862735969234*^9, 
+   3.968862750137532*^9}, 3.968862791322203*^9, {3.968862821647521*^9, 
+   3.968862851794694*^9}, {3.968862926209662*^9, 3.968862936227088*^9}, {
+   3.968862988918409*^9, 3.968863021896158*^9}, 3.968863106136917*^9, {
+   3.968863149234664*^9, 3.9688631752834997`*^9}, {3.968863219411477*^9, 
+   3.968863222724887*^9}, 3.968863258220604*^9, {3.968863327384223*^9, 
+   3.96886338343957*^9}, {3.968863445440743*^9, 3.968863454830756*^9}, {
+   3.9688643385119786`*^9, 3.968864345524817*^9}, {3.968864899537257*^9, 
+   3.96886490055833*^9}, {3.968864984084434*^9, 3.968864988625293*^9}, {
+   3.968868403053962*^9, 3.968868405067593*^9}, {3.974915119948221*^9, 
+   3.974915120961867*^9}, {3.974915723804886*^9, 3.974915828085894*^9}, {
+   3.974915906320188*^9, 3.974915924174458*^9}, {3.974916282971882*^9, 
+   3.974916345517522*^9}, {3.974918407142307*^9, 3.974918409041774*^9}},
+ CellLabel->"In[52]:=",ExpressionUUID->"e065207d-031b-4c8e-a702-96c320d62148"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "FindRoot", "lstol", 
+   "\"The line search decreased the step size to within tolerance specified \
+by AccuracyGoal and PrecisionGoal but was unable to find a sufficient \
+decrease in the merit function. You may need more than \
+\\!\\(\\*RowBox[{\\\"MachinePrecision\\\"}]\\) digits of working precision to \
+meet these tolerances.\"", 2, 52, 1, 22570518979193446684, "Local"},
+  "MessageTemplate"]], "Message", "MSG",
+ CellChangeTimes->{3.99433935989373*^9},
+ CellLabel->
+  "During evaluation of \
+In[52]:=",ExpressionUUID->"1510b4a4-1635-44f5-8253-16443397e68e"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"v0\"\>", "\<\"v_esc\"\>", "\<\"v_rms(MB)\"\>", "\<\"v0_tsa\"\>", \
+"\<\"v0_emp\"\>"},
+    {"220", "544", "266.0117949883278`", "280.05642157324405`", 
+     "154.09010879927246`"},
+    {"200", "544", "243.80895397345427`", "244.0726095730524`", 
+     "115.51949075798264`"},
+    {"280", "544", "319.10240104071903`", "398.942140706659`", 
+     "710.5355537496896`"},
+    {"220", "450", "255.32042010719314`", "306.2171971648562`", 
+     "340.9708891401506`"},
+    {"200", "450", "238.09180303832616`", "266.16948168848285`", 
+     "187.36458884688196`"},
+    {"280", "450", "290.80530503873354`", "430.66720974000856`", 
+     "4.385908973166684`*^7"},
+    {"220", "600", "268.22904153746845`", "268.1795248265701`", 
+     "126.51325999766826`"},
+    {"200", "600", "244.6416573773759`", "234.9308354476038`", 
+     "100.91012772782264`"},
+    {"280", "600", "329.4453445162099`", "381.35509548129517`", 
+     "326.1768256816153`"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Center}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{3.974918510389776*^9, 3.974935160426579*^9, 
+  3.982522739566037*^9, 3.986113003363188*^9, 3.994339155427931*^9, 
+  3.994339359932891*^9},
+ CellLabel->"Out[52]=",ExpressionUUID->"e0f8ff2f-7242-42fd-ad34-b83fcfd2b070"]
+}, Open  ]]
+},
+WindowSize->{Full, Full},
+WindowMargins->{{331, Automatic}, {Automatic, 50}},
+FrontEndVersion->"14.0 for Mac OS X ARM (64-bit) (December 12, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"568cbc55-0d69-45b0-9c17-0ff26bf9c847"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 428, 8, 51, "Text",ExpressionUUID->"291c9f03-c5d7-48e9-8d27-9d42800b2db6"],
+Cell[989, 30, 464, 10, 74, "Text",ExpressionUUID->"d136c003-f70c-4c4c-85a2-b98515304e60"],
+Cell[CellGroupData[{
+Cell[1478, 44, 5184, 141, 245, "Input",ExpressionUUID->"57bb9a75-9ae1-4c95-860b-0ffd2347c7b7"],
+Cell[6665, 187, 973, 22, 201, "Output",ExpressionUUID->"5ec5aaad-c0bb-4291-9e3a-611de81109ff"]
+}, Open  ]],
+Cell[7653, 212, 416, 8, 51, "Text",ExpressionUUID->"b7963e7f-e3ad-4ad8-b6bc-d0fa6b6969b6"],
+Cell[CellGroupData[{
+Cell[8094, 224, 4878, 131, 163, "Input",ExpressionUUID->"14de9b82-11b6-4b6b-aeca-ac0d5caa88ca"],
+Cell[12975, 357, 988, 21, 201, "Output",ExpressionUUID->"cee49b3d-21b4-4596-83ad-fb15e64f716a"]
+}, Open  ]],
+Cell[13978, 381, 433, 8, 51, "Text",ExpressionUUID->"576921dd-9962-4c88-a402-bb1dfd427901"],
+Cell[CellGroupData[{
+Cell[14436, 393, 3514, 93, 163, "Input",ExpressionUUID->"b40dd582-ecd5-40fb-b7da-714715065f64"],
+Cell[17953, 488, 942, 21, 201, "Output",ExpressionUUID->"91bf5e0c-add5-4cd1-b04a-f955288eb736"]
+}, Open  ]],
+Cell[18910, 512, 452, 9, 74, "Text",ExpressionUUID->"f37540ab-848d-44b9-9923-61366047b5b6"],
+Cell[19365, 523, 456, 11, 30, "Input",ExpressionUUID->"9db1e271-e2ea-4933-a768-0f060d82c6a7"],
+Cell[CellGroupData[{
+Cell[19846, 538, 3772, 82, 157, "Input",ExpressionUUID->"e065207d-031b-4c8e-a702-96c320d62148"],
+Cell[23621, 622, 595, 12, 48, "Message",ExpressionUUID->"1510b4a4-1635-44f5-8253-16443397e68e"],
+Cell[24219, 636, 1444, 31, 205, "Output",ExpressionUUID->"e0f8ff2f-7242-42fd-ad34-b83fcfd2b070"]
+}, Open  ]]
+}
+]
+*)
+

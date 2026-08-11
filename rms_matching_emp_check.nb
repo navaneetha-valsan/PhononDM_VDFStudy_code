@@ -1,0 +1,537 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 14.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     19173,        529]
+NotebookOptionsPosition[     17941,        504]
+NotebookOutlinePosition[     18341,        520]
+CellTagsIndexPosition[     18298,        517]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["\<\
+Reader note: This notebook checks whether the empirical velocity distribution \
+can produce a finite v0_EMP when rms-matched to that of a truncated \
+Maxwell-Boltzmann distribution.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.994339645344548*^9, 3.9943396550428953`*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"0537d88b-12a2-463f-86f2-485c33da7405"],
+
+Cell["\<\
+Workflow: for each (v0, vesc) point in Maxwell-Boltzmann distribution, \
+compare vrms(MB) with that of the empirical distribution in v0 -> infinity \
+limit at the same vesc and p=1.5. 
+If vrms(MB) is larger than that limit, no finite v0_EMP solution exists and \
+the point should be marked as v0_EMP = infinity on Fig. 1 (contour plot) in \
+2606.04091v1.
+Use the output from this notebook (output_contour.xlsx) in \
+script_rms_contour_plot.ipynb\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.994339713535376*^9, 3.994339816974496*^9}, {
+  3.994339891862475*^9, 3.99434003030504*^9}, {3.994340147429141*^9, 
+  3.9943401507931747`*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"6d3c43a7-394d-405c-bace-3bb3574cf0d2"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Velocity", " ", "points", " ", "for", " ", "trials"}], "*)"}], 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"v0vals", "=", 
+     RowBox[{"{", 
+      RowBox[{"220", ",", "200", ",", "280"}], "}"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"vescvals", "=", 
+     RowBox[{"{", 
+      RowBox[{"544", ",", "450", ",", "600"}], "}"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Dense", " ", "velocity", " ", "grid", " ", "for", " ", "the", " ", 
+     "plot"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"v0vals", "=", 
+      RowBox[{"Range", "[", 
+       RowBox[{"200", ",", "280", ",", "1"}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"vescvals", "=", 
+      RowBox[{"Range", "[", 
+       RowBox[{"450", ",", "600", ",", "1"}], "]"}]}], ";"}], 
+    "*)"}]}]}]], "Input",
+ CellChangeTimes->{{3.982865421916986*^9, 3.982865432878707*^9}, {
+   3.982865966223132*^9, 3.982865969021686*^9}, {3.982866258077988*^9, 
+   3.982866260362779*^9}, {3.982877040511108*^9, 3.982877062549403*^9}, 
+   3.98287717744258*^9, {3.9943402797305727`*^9, 3.994340368137735*^9}},
+ CellLabel->"In[53]:=",ExpressionUUID->"8f932bf8-8f3b-4264-8722-1ad72b8ef34a"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+    "Maxwell", " ", "Boltzmann", " ", "Distribution", " ", "truncated", " ", 
+     "at", " ", "v"}], "=", "vesc"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"kMB", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "2"], "*", 
+        RowBox[{"Exp", "[", 
+         RowBox[{
+          RowBox[{"-", 
+           SuperscriptBox["v", "2"]}], "/", 
+          SuperscriptBox["v0", "2"]}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{"v0", ">", "0"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"valMB", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "4"], "*", 
+        RowBox[{"Exp", "[", 
+         RowBox[{
+          RowBox[{"-", 
+           SuperscriptBox["v", "2"]}], "/", 
+          SuperscriptBox["v0", "2"]}], "]"}]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}], ",", 
+       RowBox[{"Assumptions", "->", 
+        RowBox[{"{", 
+         RowBox[{"v0", ">", "0"}], "}"}]}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"vrmsMB", "=", 
+     RowBox[{"FullSimplify", "[", 
+      RowBox[{"vrms", " ", "=", " ", 
+       RowBox[{"Sqrt", "[", 
+        RowBox[{"valMB", "/", "kMB"}], "]"}]}], "]"}]}], ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.968843405293565*^9, 3.968843496475761*^9}, {
+   3.968843665823382*^9, 3.96884366939392*^9}, {3.968843716326255*^9, 
+   3.9688437356719847`*^9}, {3.968850793100791*^9, 3.968850802868058*^9}, {
+   3.968864215349628*^9, 3.968864231085552*^9}, {3.968864389841336*^9, 
+   3.968864400829237*^9}, {3.968864588360602*^9, 3.968864595521482*^9}, {
+   3.9688652044199953`*^9, 3.968865216431632*^9}, 3.968865619052636*^9, 
+   3.968868006031762*^9, 3.968868101558982*^9, 3.968868132841525*^9, {
+   3.982590483342021*^9, 3.982590506868041*^9}, 3.982590823342938*^9, 
+   3.982590914978717*^9, {3.98259391804462*^9, 3.982593998382781*^9}, {
+   3.982594076152687*^9, 3.98259407999143*^9}, {3.982598397730393*^9, 
+   3.982598399869461*^9}, {3.982598654699253*^9, 3.9825986742627087`*^9}, {
+   3.982669018784878*^9, 3.982669030600265*^9}, {3.9826720561200867`*^9, 
+   3.9826720582016993`*^9}, {3.982865290109069*^9, 3.982865309769101*^9}, {
+   3.982865416267602*^9, 3.982865417134921*^9}, {3.982865453827841*^9, 
+   3.982865454221528*^9}, {3.982870602237989*^9, 3.9828706303719177`*^9}, {
+   3.982875180008689*^9, 3.982875180844481*^9}},
+ CellLabel->"In[55]:=",ExpressionUUID->"57bb9a75-9ae1-4c95-860b-0ffd2347c7b7"],
+
+Cell["\<\
+Empirical maximum block: this evaluates the empirical vrms in the v0 -> \
+infinity limit for p = 1.5. That value is the largest vrms the empirical form \
+can reach at fixed vesc.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.9943402432931767`*^9, 3.994340256675775*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"da891911-8463-429c-9a13-fec68c214dd7"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"Empirical", " ", "distribution", " ", "Mao", " ", 
+    RowBox[{"et", ".", "al"}], " ", "2013"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Find", " ", "vrmsmax", " ", "by", " ", "setting", " ", "v0"}], 
+    "=", "inf"}], "*)"}], "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"p", "=", "1.5"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"kemp", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "2"], "*", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           SuperscriptBox["vesc", "2"], "-", 
+           SuperscriptBox["v", "2"]}], ")"}], "p"]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"valemp", " ", "=", " ", 
+     RowBox[{"Integrate", "[", 
+      RowBox[{
+       RowBox[{"4", "*", "Pi", "*", 
+        SuperscriptBox["v", "4"], "*", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           SuperscriptBox["vesc", "2"], "-", 
+           SuperscriptBox["v", "2"]}], ")"}], "p"]}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v", ",", "0", ",", "vesc"}], "}"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"vrmsmax", "=", 
+     RowBox[{"FullSimplify", "[", 
+      RowBox[{"Sqrt", "[", 
+       RowBox[{"valemp", "/", "kemp"}], "]"}], "]"}]}], ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.968866174021675*^9, 3.96886619533605*^9}, {
+   3.968867598080286*^9, 3.968867600013833*^9}, 3.968868028286962*^9, 
+   3.968868120106973*^9, 3.968868151365719*^9, {3.970830559781701*^9, 
+   3.9708305611827*^9}, {3.97083062192659*^9, 3.970830622415722*^9}, {
+   3.970835247043646*^9, 3.970835247891064*^9}, 3.9708353276453457`*^9, {
+   3.970837644163715*^9, 3.970837645013794*^9}, {3.982590918394485*^9, 
+   3.982590922515936*^9}, {3.982865564019435*^9, 3.982865579015287*^9}, {
+   3.982865620576934*^9, 3.982865621343403*^9}, {3.982865713043268*^9, 
+   3.982865741527848*^9}, {3.994340129055478*^9, 3.994340215690002*^9}},
+ CellLabel->"In[58]:=",ExpressionUUID->"b40dd582-ecd5-40fb-b7da-714715065f64"],
+
+Cell["\<\
+Comparison table: MB > max? is True when the Maxwell-Boltzmann vrms target \
+exceeds that of the empirical in v0 -> infinity limit. 
+Those True points are the no-finite-solution region used by \
+script_rms_contour_plot.ipynb.\
+\>", "Text",
+ CellFrame->{{0, 0}, {0, 0}},
+ CellChangeTimes->{{3.994340408346714*^9, 3.994340445091364*^9}},
+ Background->RGBColor[
+  1, 0.925, 0.925],ExpressionUUID->"7c69bcb8-ab6f-44d0-8462-ed50e5df61e1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"data", "=", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"Module", "[", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"vrmsMBval", ",", "vrmsMaxVal"}], "}"}], ",", 
+         RowBox[{
+          RowBox[{"vrmsMBval", "=", 
+           RowBox[{"N", "[", 
+            RowBox[{"vrmsMB", "/.", " ", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"vesc", "->", "vescval"}], ",", 
+               RowBox[{"v0", "->", "v0val"}]}], "}"}]}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"vrmsMaxVal", "=", 
+           RowBox[{"N", "[", 
+            RowBox[{"vrmsmax", "/.", " ", 
+             RowBox[{"{", 
+              RowBox[{"vesc", "->", "vescval"}], "}"}]}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{
+           "v0val", ",", "vescval", ",", "vrmsMBval", ",", "vrmsMaxVal", ",", 
+            
+            RowBox[{"vrmsMBval", ">", "vrmsMaxVal"}]}], "   ", 
+           RowBox[{"(*", 
+            RowBox[{"True", "/", "False"}], "*)"}], "}"}]}]}], "]"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"vescval", ",", "vescvals"}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{"v0val", ",", "v0vals"}], "}"}]}], "]"}], "//", 
+     RowBox[{
+      RowBox[{"Flatten", "[", 
+       RowBox[{"#", ",", "1"}], "]"}], "&"}]}]}], ";"}], "\n", 
+  RowBox[{"(*", 
+   RowBox[{"Grid", "[", 
+    RowBox[{
+     RowBox[{"Prepend", "[", 
+      RowBox[{"data", ",", 
+       RowBox[{"{", 
+        RowBox[{
+        "\"\<v_0\>\"", ",", "\"\<v_esc\>\"", ",", "\"\<vrms(MB)\>\"", ",", 
+         "\"\<vrms_max\>\"", ",", "\"\<MB > max?\>\""}], "}"}]}], "]"}], ",", 
+     
+     RowBox[{"Frame", "->", "All"}], ",", 
+     RowBox[{"Alignment", "->", "Center"}]}], "]"}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{"Grid", "[", 
+  RowBox[{
+   RowBox[{"Prepend", "[", 
+    RowBox[{
+     RowBox[{"Map", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"#", "[", 
+           RowBox[{"[", "1", "]"}], "]"}], ",", 
+          RowBox[{"#", "[", 
+           RowBox[{"[", "2", "]"}], "]"}], ",", 
+          RowBox[{"NumberForm", "[", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "3", "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"8", ",", "4"}], "}"}]}], "]"}], ",", 
+          RowBox[{"NumberForm", "[", 
+           RowBox[{
+            RowBox[{"#", "[", 
+             RowBox[{"[", "4", "]"}], "]"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"8", ",", "4"}], "}"}]}], "]"}], ",", 
+          RowBox[{"#", "[", 
+           RowBox[{"[", "5", "]"}], "]"}]}], "}"}], "&"}], ",", "data"}], 
+      "]"}], ",", 
+     RowBox[{
+      RowBox[{
+       RowBox[{"Style", "[", 
+        RowBox[{"#", ",", "Bold"}], "]"}], "&"}], "/@", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<v0\>\"", ",", "\"\<v_esc\>\"", ",", "\"\<v_rms(MB)\>\"", ",", 
+        "\"\<vrms_max\>\"", ",", "\"\<MB > max?\>\""}], "}"}]}]}], "]"}], ",", 
+   RowBox[{"Frame", "->", "All"}], ",", 
+   RowBox[{"Alignment", "->", "Center"}], ",", 
+   RowBox[{"Spacings", "->", 
+    RowBox[{"{", 
+     RowBox[{"2", ",", "1"}], "}"}]}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.968848730550168*^9, 3.968848782825269*^9}, 
+   3.982590635281905*^9, {3.982865659612111*^9, 3.982865718848808*^9}, {
+   3.982865761651247*^9, 3.9828658586515093`*^9}, {3.982866096801422*^9, 
+   3.982866097528966*^9}, 3.982866136967268*^9, {3.982875247708319*^9, 
+   3.982875280688093*^9}, {3.9828753119163218`*^9, 3.982875345937642*^9}, {
+   3.982879372343542*^9, 3.982879373071986*^9}, {3.982880015748425*^9, 
+   3.982880053548393*^9}, {3.982880452593596*^9, 3.982880455793262*^9}, {
+   3.982880491105558*^9, 3.982880493935905*^9}, {3.9943404578845377`*^9, 
+   3.9943404591189528`*^9}},
+ CellLabel->"In[62]:=",ExpressionUUID->"9db1e271-e2ea-4933-a768-0f060d82c6a7"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     StyleBox["\<\"v0\"\>",
+      StripOnInput->False,
+      FontWeight->Bold], 
+     StyleBox["\<\"v_esc\"\>",
+      StripOnInput->False,
+      FontWeight->Bold], 
+     StyleBox["\<\"v_rms(MB)\"\>",
+      StripOnInput->False,
+      FontWeight->Bold], 
+     StyleBox["\<\"vrms_max\"\>",
+      StripOnInput->False,
+      FontWeight->Bold], 
+     StyleBox["\<\"MB > max?\"\>",
+      StripOnInput->False,
+      FontWeight->Bold]},
+    {"220", "544", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"266.0118\"\>",
+        ShowStringCharacters->False],
+       266.0117949883278,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"333.1306\"\>",
+        ShowStringCharacters->False],
+       333.1306050185122,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"200", "544", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"243.8090\"\>",
+        ShowStringCharacters->False],
+       243.80895397345427`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"333.1306\"\>",
+        ShowStringCharacters->False],
+       333.1306050185122,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"280", "544", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"319.1024\"\>",
+        ShowStringCharacters->False],
+       319.10240104071903`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"333.1306\"\>",
+        ShowStringCharacters->False],
+       333.1306050185122,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"220", "450", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"255.3204\"\>",
+        ShowStringCharacters->False],
+       255.32042010719314`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"275.5676\"\>",
+        ShowStringCharacters->False],
+       275.56759606310754`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"200", "450", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"238.0918\"\>",
+        ShowStringCharacters->False],
+       238.09180303832616`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"275.5676\"\>",
+        ShowStringCharacters->False],
+       275.56759606310754`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"280", "450", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"290.8053\"\>",
+        ShowStringCharacters->False],
+       290.80530503873354`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"275.5676\"\>",
+        ShowStringCharacters->False],
+       275.56759606310754`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "True"},
+    {"220", "600", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"268.2290\"\>",
+        ShowStringCharacters->False],
+       268.22904153746845`,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"367.4235\"\>",
+        ShowStringCharacters->False],
+       367.4234614174767,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"200", "600", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"244.6417\"\>",
+        ShowStringCharacters->False],
+       244.6416573773759,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"367.4235\"\>",
+        ShowStringCharacters->False],
+       367.4234614174767,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"},
+    {"280", "600", 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"329.4453\"\>",
+        ShowStringCharacters->False],
+       329.4453445162099,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], 
+     TagBox[
+      InterpretationBox[
+       StyleBox["\<\"367.4235\"\>",
+        ShowStringCharacters->False],
+       367.4234614174767,
+       AutoDelete->True],
+      NumberForm[#, {8, 4}]& ], "False"}
+   },
+   AutoDelete->False,
+   GridBoxAlignment->{"Columns" -> {{Center}}},
+   GridBoxFrame->{"Columns" -> {{True}}, "Rows" -> {{True}}},
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+   GridBoxSpacings->{"Columns" -> {{2}}, "Rows" -> {{1}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{
+  3.98287537337499*^9, 3.982877183697339*^9, 3.98287981375937*^9, {
+   3.982880033244926*^9, 3.982880056748595*^9}, {3.982880467106846*^9, 
+   3.982880506186886*^9}, 3.994340466339649*^9},
+ CellLabel->"Out[63]=",ExpressionUUID->"024f6322-16af-4333-bb27-f39e1bc2cc29"]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{3.982880510891232*^9, 
+  3.993908849903798*^9},ExpressionUUID->"12fc92af-45bf-45d0-928b-\
+cd46d30d298b"]
+},
+WindowSize->{Full, Full},
+WindowMargins->{{331, Automatic}, {Automatic, 50}},
+FrontEndVersion->"14.0 for Mac OS X ARM (64-bit) (December 12, 2023)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"568cbc55-0d69-45b0-9c17-0ff26bf9c847"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 401, 8, 51, "Text",ExpressionUUID->"0537d88b-12a2-463f-86f2-485c33da7405"],
+Cell[962, 30, 762, 15, 97, "Text",ExpressionUUID->"6d3c43a7-394d-405c-bace-3bb3574cf0d2"],
+Cell[1727, 47, 1277, 33, 136, "Input",ExpressionUUID->"8f932bf8-8f3b-4264-8722-1ad72b8ef34a"],
+Cell[3007, 82, 2806, 64, 98, "Input",ExpressionUUID->"57bb9a75-9ae1-4c95-860b-0ffd2347c7b7"],
+Cell[5816, 148, 398, 8, 51, "Text",ExpressionUUID->"da891911-8463-429c-9a13-fec68c214dd7"],
+Cell[6217, 158, 2256, 54, 142, "Input",ExpressionUUID->"b40dd582-ecd5-40fb-b7da-714715065f64"],
+Cell[8476, 214, 443, 9, 74, "Text",ExpressionUUID->"7c69bcb8-ab6f-44d0-8462-ed50e5df61e1"],
+Cell[CellGroupData[{
+Cell[8944, 227, 3954, 103, 136, "Input",ExpressionUUID->"9db1e271-e2ea-4933-a768-0f060d82c6a7"],
+Cell[12901, 332, 4871, 164, 281, "Output",ExpressionUUID->"024f6322-16af-4333-bb27-f39e1bc2cc29"]
+}, Open  ]],
+Cell[17787, 499, 150, 3, 30, "Input",ExpressionUUID->"12fc92af-45bf-45d0-928b-cd46d30d298b"]
+}
+]
+*)
+
